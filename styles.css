@@ -118,3 +118,13 @@ tr:last-child td { border-bottom: 0; }
   .site-header, form, .site-footer, .result-actions { display: none !important; }
   body { background: #fff; color: #000; }
 }
+
+/* submit to ITSM */
+.submit-panel { margin-top: 16px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.grid2 label { display: grid; gap: 4px; font-size: .8rem; color: var(--muted); }
+.submit-status { margin: 10px 0 0; font-weight: 600; }
+.submit-status.ok { color: var(--ok); }
+.submit-status.bad { color: var(--deny); }
+@media (max-width: 620px) { .grid2 { grid-template-columns: 1fr; } }
+@media print { .submit-panel { display: none !important; } }

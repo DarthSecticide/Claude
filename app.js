@@ -176,11 +176,54 @@
     const print = el("button", { type: "button", class: "btn ghost" }, "Print");
     print.addEventListener("click", () => window.print());
     out.push(el("div", { class: "result-actions" }, copy, print), contactsLine);
+    if (submitEnabled) out.push(submitPanel(r));
 
     resultsEl.replaceChildren(...out);
     resultsEl.hidden = false;
     resultsEl.focus();
     resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // ---------- Submit to ITSM (only when the server has Halo configured) ----------
+  let submitEnabled = false;
+  let lastInput = null;
+  fetch("api/config").then((r) => r.json()).then((c) => { submitEnabled = !!c.submitEnabled; }).catch(() => {});
+
+  function submitPanel(r) {
+    const name = el("input", { type: "text", id: "req-name", autocomplete: "name", required: true });
+    const email = el("input", { type: "text", id: "req-email", autocomplete: "email", inputmode: "email", required: true });
+    const status = el("p", { class: "submit-status", role: "status" });
+    const btn = el("button", { type: "submit", class: "btn primary" }, r.overall === "denied" ? "Request an exception" : "Submit request to IT");
+    const panel = el("form", { class: "result-card submit-panel", novalidate: true },
+      el("h3", {}, "Submit this to IT"),
+      el("p", { class: "hint" }, "This creates a ticket with the assessment above so the right teams can approve and set up your access."),
+      el("div", { class: "grid2" },
+        el("label", { for: name.id }, "Your name", name),
+        el("label", { for: email.id }, "Work email", email)),
+      btn, status);
+
+    panel.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      status.textContent = ""; status.className = "submit-status";
+      btn.disabled = true; btn.textContent = "Submitting…";
+      try {
+        const res = await fetch("api/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...lastInput, requester: { name: name.value, email: email.value } }),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || "Submission failed.");
+        status.className = "submit-status ok";
+        status.textContent = `Submitted. Your ticket number is ${body.id}.`;
+        btn.hidden = true; name.disabled = email.disabled = true;
+      } catch (err) {
+        status.className = "submit-status bad";
+        status.textContent = err.message;
+        btn.disabled = false; btn.textContent = "Try again";
+      }
+    });
+    return panel;
   }
 
   function textSummary(r) {
@@ -203,6 +246,8 @@
     const result = evaluate(input, POLICY, COUNTRIES);
     showErrors(result.errors, input.legIdx);
     if (result.errors.length) { resultsEl.hidden = true; return; }
+    const { legIdx, ...payload } = input;
+    lastInput = payload;
     renderResults(result);
   });
 
