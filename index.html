@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Travel Access Check</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <h1>Travel Access Check</h1>
+      <p class="lede">Working from abroad? Tell us where, when and what you need, and get instant guidance on network and SaaS access.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <form id="form" novalidate>
+      <div id="errors" class="error-summary" role="alert" hidden></div>
+
+      <section class="card" aria-labelledby="q1">
+        <h2 id="q1"><span class="num">1</span> Where are you traveling, and when will you be working from there?</h2>
+        <p class="hint">Add one row per country. Use the dates you'll actually be working there, not just passing through.</p>
+        <div id="legs"></div>
+        <datalist id="country-list"></datalist>
+        <button type="button" id="add-leg" class="btn secondary">+ Add another country</button>
+      </section>
+
+      <section class="card" aria-labelledby="q3">
+        <h2 id="q3"><span class="num">2</span> What do you need access to?</h2>
+        <fieldset id="access">
+          <legend class="sr-only">Access needed</legend>
+
+          <label class="check"><input type="checkbox" id="acc-vm"> <span><strong>Virtual machine(s)</strong><small>Cloud or on-prem VMs, VDI, jump hosts</small></span></label>
+
+          <label class="check"><input type="checkbox" id="acc-saas"> <span><strong>Collaboration &amp; SaaS tools</strong><small>Outlook, Slack, Box, OneDrive, etc.</small></span></label>
+          <div id="saas-sub" class="sub" hidden>
+            <p class="hint">Which ones?</p>
+            <div id="apps" class="chips"></div>
+          </div>
+
+          <label class="check"><input type="checkbox" id="acc-other"> <span><strong>Other</strong><small>Anything not listed above</small></span></label>
+          <div id="other-sub" class="sub" hidden>
+            <label for="other-text" class="hint">Describe the system(s) and what you'll do with them</label>
+            <textarea id="other-text" rows="3" maxlength="600" placeholder="e.g. Salesforce production, internal admin console, source code repositories"></textarea>
+          </div>
+        </fieldset>
+
+        <fieldset id="sensitive-wrap" class="sub" hidden>
+          <legend class="hint">Will you handle sensitive data (customer data, source code, regulated or export-controlled data)?</legend>
+          <label class="radio"><input type="radio" name="sensitive" value="yes"> Yes</label>
+          <label class="radio"><input type="radio" name="sensitive" value="no" checked> No</label>
+          <label class="radio"><input type="radio" name="sensitive" value="unsure"> Not sure</label>
+        </fieldset>
+      </section>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">Get guidance</button>
+        <button type="reset" class="btn ghost" id="reset">Start over</button>
+      </div>
+    </form>
+
+    <section id="results" aria-live="polite" tabindex="-1" hidden></section>
+  </main>
+
+  <footer class="wrap site-footer">
+    <p>Guidance is generated from the rules in <code>policy.js</code>. It is advisory and does not replace approval from Security, Legal or HR where required.</p>
+  </footer>
+
+  <script src="countries.js"></script>
+  <script src="policy.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
